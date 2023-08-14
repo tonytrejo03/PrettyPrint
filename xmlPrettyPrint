@@ -1,0 +1,81 @@
+Option Explicit
+
+Sub GasInfo()
+
+
+    Dim doc As Class1
+    Dim configNo As Integer
+    Dim config As Class2
+    Dim itemNo As Integer
+    Dim item As Class2
+    Dim itemValue As Class2
+    
+    Dim xmlDoc As Object
+    Dim rootNode As Object
+    Dim child As Object
+    Dim childchild As Object
+    Dim xmlFilePath As String
+    Dim root As Object
+    Dim elem As Object
+    Dim wsThis As Object
+    Dim lastRow
+    Dim lastColumn
+    Dim Row
+    Dim Column
+    Dim Structure As Integer
+    
+  
+    Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
+    Set wsThis = ThisWorkbook.Worksheets("Sheet1")
+    lastRow = wsThis.Cells(wsThis.Rows.Count, 1).End(xlUp).Row
+    lastColumn = wsThis.Cells(1, wsThis.Columns.Count).End(xlToLeft).Column
+    
+    xmlDoc.async = False
+    xmlDoc.preserveWhiteSpace = True
+    xmlDoc.SetProperty "SelectionLanguage", "XPath"
+    
+    Set doc = New Class1
+    doc.root.Tag = "EC20SensorDefaultList"
+    doc.root.AddAttribute "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"
+    doc.root.AddAttribute "xmlns:xsd", "http://www.w3.org/2001/XMLSchema"
+
+    For Structure = 1 To 1
+        Set config = New Class2
+        config.Tag = "EC20DefaultList"
+        doc.root.AddChild config
+    
+        For Row = 1 To lastRow - 1
+            Set child = New Class2
+            child.Tag = "EC20Sensor"
+            child.Value = " "
+            config.AddChild child
+    
+            For Column = 1 To lastColumn
+                Set elem = New Class2
+                Set childchild = New Class2
+                childchild.Tag = Worksheets("Sheet1").Cells(1, Column)
+                childchild.Value = Worksheets("Sheet1").Cells(Row + 1, Column)
+                child.AddChild childchild
+ 
+            Next Column
+               
+        Next Row
+        
+    Next Structure
+    
+    Dim filePath As String
+    Dim fileNumber As Integer
+    filePath = "P:\temp\TonyTemp\EC20Default.xml"
+        
+    
+    fileNumber = FreeFile
+    Open filePath For Output As fileNumber
+    
+    Print #fileNumber, doc.ToString
+
+    Close fileNumber
+    
+
+       
+End Sub
+
